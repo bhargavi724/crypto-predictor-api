@@ -14,6 +14,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def health_check():
+    return {"status": "Crypto Predictor API is running. Use /predict/BTC to get predictions."}
+
 @app.get("/predict/{ticker}")
 def predict_crypto(ticker: str):
     try:
@@ -53,8 +57,9 @@ def predict_crypto(ticker: str):
         final_model = RandomForestRegressor(n_estimators=100, random_state=42)
         final_model.fit(X, y)
 
+        # Extract scalar values safely using [0] and .item()
         predicted_price = float(final_model.predict(latest_data)[0])
-        current_price = float(df["Close"].iloc[-1])
+        current_price = float(df["Close"].iloc[-1].item())
 
         # 3. Prepare last 30 days for the frontend chart
         recent_df = df.tail(30)
